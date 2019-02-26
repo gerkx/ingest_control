@@ -1,0 +1,1 @@
+@py.exe E:\Dropbox (BigBangBoxSL)\PROYECTOS\My preschool monster serie\PRODUCCION\Editorial\Dev\ingest_control\rename.py
