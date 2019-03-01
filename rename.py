@@ -1,8 +1,10 @@
-import re, shutil, os
+import re, shutil, os, subprocess, time
 
 watch_dir = os.path.abspath("E:\\test\\Animation_In")
 server_dir = os.path.abspath("Z:\\monster")
 dest_dir = os.path.join(watch_dir, 'monster')
+trans_dir = os.path.abspath("E:\\Dropbox (BigBangBoxSL)\\PROYECTOS\\My preschool monster serie\\PRODUCCION\\Editorial\\FTG\\__EXR_to_ProRes4444XQ")
+ame = os.path.abspath("C:\\Program Files\\Adobe\\Adobe Media Encoder CC 2019\\Adobe Media Encoder.exe")
 ext = '.exr'
 
 def pad_zero(num, pad):
@@ -24,14 +26,8 @@ def ver_finder(path):
 for contents in os.listdir(watch_dir):
     curr_dir = os.path.join(watch_dir, contents)
 
-    # print(contents)
-    # mov = re.search(f'{ext}$', contents)
-    # if mov == None:
-    #     continue
-    # else:
     if not os.path.isdir(curr_dir):
         continue
-    
     
     se = re.search(r'S\d{2}E\d{2}', contents, re.IGNORECASE)
     sq = re.search(r'SQ\d{4}', contents, re.IGNORECASE)
@@ -51,7 +47,7 @@ for contents in os.listdir(watch_dir):
     ver = f'V{pad_zero(ver_finder(epi_path), 3)}'
     shot_ver = f'{shot_base}_{ver}'
 
-    shot_path = os.path.join(dest_dir, f'{epi_path}\\{shot_ver}')
+    shot_path = os.path.join(dest_dir, f'{epi_path}\\{shot_ver}\\exr')
     if not os.path.exists(shot_path):
         os.makedirs(shot_path)
     
@@ -64,20 +60,22 @@ for contents in os.listdir(watch_dir):
         elif re.search(r'_v\d{3}', img, re.IGNORECASE):
             continue
         else:
-
             img_shot = re.search(r'SH\d{4}', img, re.IGNORECASE)
             name_ver = f'{img[:img_shot.end(0)]}_{ver}{img[img_shot.end(0):]}'
-            
             orig_file = os.path.join(exr_dir, img)
             new_file = os.path.join(exr_dir, name_ver)
             os.rename(orig_file, new_file)
-            shutil.move(new_file, shot_path)
+            
+            shutil.copy2(new_file, shot_path)
+            shutil.copy2(new_file, trans_dir)
     
     shutil.rmtree(curr_dir)
+
+subprocess.Popen(ame)
             
 
     
 
-        # rename = f"monster_S{season}E{episode}_SQ{sequence}_SH{shot}.mov"
-        # shutil.move(os.path.join(watch_dir, contents), os.path.join(rename_dir, rename))
+    # rename = f"monster_S{season}E{episode}_SQ{sequence}_SH{shot}.mov"
+    # shutil.move(os.path.join(watch_dir, contents), os.path.join(rename_dir, rename))
 
