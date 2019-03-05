@@ -75,30 +75,21 @@ for contents in os.listdir(watch_dir):
             new_file = os.path.join(exr_dir, name_ver)
             os.rename(orig_file, new_file)
     
-    print("renamed")
-    # time.sleep(1)
-
-    # for img in os.listdir(exr_dir): 
-    #     img_path = os.path.join(exr_dir, img)
-    #     shutil.copy2(img_path, shot_path)
-    #     shutil.copy2(img_path, trans_dir)
+    print("added versions")
   
     for img in os.listdir(exr_dir): 
         img_source = os.path.join(exr_dir, img)
-        # img_moved = os.path.join(shot_path, img)
-        # shutil.copy2(img_path, shot_path)
         shutil.move(img_source, shot_path)
-        print("moved", img)
-        # shutil.copy2(img_moved, trans_dir)
-        # print("copied", img)
+        print("moved to shot dir:", img)
+
+    shutil.rmtree(curr_dir, onerror=remove_readonly)
 
     for img in os.listdir(shot_path):
         img_path = os.path.join(shot_path, img)
         shutil.copy2(img_path, trans_dir)
         print("copied to ame:", img)
     
-    # time.sleep(15)
-    shutil.rmtree(curr_dir, onerror=remove_readonly)
+    
 
 subprocess.Popen(ame)
             
