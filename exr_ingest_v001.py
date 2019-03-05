@@ -76,7 +76,7 @@ for contents in os.listdir(watch_dir):
             os.rename(orig_file, new_file)
     
     print("renamed")
-    time.sleep(1)
+    # time.sleep(1)
 
     # for img in os.listdir(exr_dir): 
     #     img_path = os.path.join(exr_dir, img)
@@ -97,7 +97,7 @@ for contents in os.listdir(watch_dir):
         shutil.copy2(img_path, trans_dir)
         print("copied to ame:", img)
     
-    time.sleep(15)
+    # time.sleep(15)
     shutil.rmtree(curr_dir, onerror=remove_readonly)
 
 subprocess.Popen(ame)
