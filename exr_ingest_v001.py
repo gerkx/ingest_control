@@ -41,6 +41,8 @@ for contents in os.listdir(watch_dir):
     se = re.search(r'S\d{2}E\d{2}', contents, re.IGNORECASE)
     sq = re.search(r'SQ\d{4}', contents, re.IGNORECASE)
     sh = re.search(r'SH\d{4}', contents, re.IGNORECASE)
+    verPadTwo = re.search(r'_v\d{2}', contents, re.IGNORECASE)
+    verPadThree = re.search(r'_v\d{3}', contents, re.IGNORECASE)
 
     if not se or not sq or not sh:
         continue
@@ -53,9 +55,14 @@ for contents in os.listdir(watch_dir):
     shot_base = f'S{season}E{episode}_SQ{sequence}_SH{shot}'
     epi_path = os.path.join(dest_dir, f'S{season}\\S{season}E{episode}\\shots\\exr')
     
-    ver = f'V{pad_zero(ver_finder(epi_path), 3)}'
+    if verPadTwo and not verPadThree:
+        ver = f'V{pad_zero(verPadTwo.group(0)[2:], 3)}'
+    elif verPadThree:
+        ver = f'V{pad_zero(verPadThree.group(0)[2:], 3)}'
+    else:
+        ver = f'V{pad_zero(ver_finder(epi_path), 3)}'
     shot_ver = f'{shot_base}_{ver}'
-
+ 
     shot_path = os.path.join(dest_dir, f'{epi_path}\\{shot_ver}')
     if not os.path.exists(shot_path):
         os.makedirs(shot_path)
@@ -74,28 +81,13 @@ for contents in os.listdir(watch_dir):
             orig_file = os.path.join(exr_dir, img)
             new_file = os.path.join(exr_dir, name_ver)
             os.rename(orig_file, new_file)
-    
-    print("added versions")
+            print("added version:", name_ver)
   
     for img in os.listdir(exr_dir): 
         img_source = os.path.join(exr_dir, img)
-        shutil.move(img_source, shot_path)
-        print("moved to shot dir:", img)
+        shutil.move(img_source, trans_dir)
+        print("moved to watch folder:", img)
 
     shutil.rmtree(curr_dir, onerror=remove_readonly)
 
-    for img in os.listdir(shot_path):
-        img_path = os.path.join(shot_path, img)
-        shutil.copy2(img_path, trans_dir)
-        print("copied to ame:", img)
-    
-    
-
 subprocess.Popen(ame)
-            
-
-    
-
-    # rename = f"monster_S{season}E{episode}_SQ{sequence}_SH{shot}.mov"
-    # shutil.move(os.path.join(watch_dir, contents), os.path.join(rename_dir, rename))
-

@@ -4,7 +4,7 @@ from openpyxl import load_workbook
 
 main_dir = os.path.abspath("E:\\test\\Audio_In")
 watch_dir = os.path.join(main_dir, "_audio_in")
-gen_dir = os.path.abspath("E:\\Dropbox (BigBangBoxSL)\\PROYECTOS\\My preschool monster serie\\PRODUCCION\\Editorial\\Audio\\generico\\ingles\\ninos")
+gen_dir = os.path.abspath("E:\\Dropbox (BigBangBoxSL)\\PROYECTOS\\My preschool monster serie\\PRODUCCION\\Editorial\\Audio\\generico\\ingles\\")
 walla_dir = os.path.join(gen_dir, "wallas")
 trama_dir = os.path.join(watch_dir, 'S01')
 ninos_dir = os.path.join(gen_dir, "ninos")
