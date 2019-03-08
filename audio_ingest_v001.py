@@ -15,7 +15,6 @@ wb = load_workbook(filename = spread_sheet)
 sheet = wb["EPISODIOS"]
 col = "I"
 
-
 def pad_zero(num, pad):
     num = str(num)
     while len(num) < pad:
@@ -49,7 +48,8 @@ for contents in os.listdir(watch_dir):
         if trama is not None:
             epiNum = re.search(r'\d{2}', trama.group(0), re.IGNORECASE)
             epi = trama.group(0)[epiNum.start(0):epiNum.end(0)]
-            title = unidecode(sheet[f'{col}{str(int(epi)+2)}'].value).lower().split(' ', 1)[0]
+            title_base = unidecode(sheet[f'{col}{str(int(epi)+2)}'].value).lower().split(' ', 1)[0]
+            title = re.sub(r'[^\w\s]', '', title_base)
             
             file_path = os.path.join(trama_dir, f'epi{pad_zero(epi, 3)}_{title}\\voz\\ingles')
             if not os.path.exists(file_path):
@@ -58,8 +58,6 @@ for contents in os.listdir(watch_dir):
             shutil.move(curr_file, file_path)
 
         # if ninos is not None and trama is None:
-
-    
 
 
         

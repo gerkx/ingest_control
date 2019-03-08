@@ -1,5 +1,7 @@
 import re, shutil, os, subprocess, time, stat, logging
 from datetime import datetime
+from unidecode import unidecode
+from openpyxl import load_workbook
 
 def pad_zero(num, pad):
     num = str(num)
@@ -15,8 +17,12 @@ hour = pad_zero(now.hour,2)
 minute = pad_zero(now.minute,2)
 second = pad_zero(now.second,2)
 LOG_FILENAME = f'Logs\\AME_{year}{month}{day}{hour}{minute}{second}.log'
-
 logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
+
+spread_sheet = os.path.abspath("E:\\Dropbox (BigBangBoxSL)\\PROYECTOS\\My preschool monster serie\\PRODUCCION\\Script\\Storylines.xlsx")
+wb = load_workbook(filename = spread_sheet)
+sheet = wb["EPISODIOS"]
+col = "I"
 
 server_dir = os.path.abspath("Z:\\monster")
 trans_dir = os.path.join(server_dir, "ame")
@@ -47,7 +53,13 @@ for contents in os.listdir(trans_out):
 
     season = contents[se.start(0)+1:se.start(0)+3]
     episode = contents[se.start(0)+4:se.start(0)+6]
-    epi_path = os.path.join(server_dir, f'S{season}\\S{season}E{episode}\\shots\\mov')
+    title_base = unidecode(sheet[f'{col}{str(int(episode)+2)}'].value).lower().split(' ', 1)[0]        
+    title = re.sub(r'[^\w\s]', '', title_base).lower()
+    if len(title) < 1:
+        title = ""
+    else:
+        title = f'_{title}'
+    epi_path = os.path.join(server_dir, f'S{season}\\S{season}E{episode}{title}\\shots\\mov')
     if not os.path.exists(epi_path):
         os.makedirs(epi_path)
 
@@ -86,17 +98,25 @@ for folder in os.listdir(ftg_source):
         sequence = img[sq.start(0)+2:sq.start(0)+6]
         shot = img[sh.start(0)+2:sh.start(0)+6]
         version = img[ver.start(0)+2:ver.start(0)+5]
+        title_base = unidecode(sheet[f'{col}{str(int(episode)+2)}'].value).lower().split(' ', 1)[0]        
+        title = re.sub(r'[^\w\s]', '', title_base).lower()
+        if len(title) < 1:
+            title = ""
+        else:
+            title = f'_{title}'
+
 
         shot_name = f'S{season}E{episode}_SQ{sequence}_SH{shot}_V{version}'
-        shot_path = os.path.join(server_dir, f'S{season}\\S{season}E{episode}\\shots\\exr\\{shot_name}')        
+        shot_path = os.path.join(server_dir, f'S{season}\\S{season}E{episode}{title}\\shots\\exr\\{shot_name}')        
         if not os.path.exists(shot_path):
             os.makedirs(shot_path)
         
         shutil.move(os.path.join(ftg_dir, img), os.path.join(shot_path, img))
         log += f'{now}: moved {img} to: {shot_path}\n'
-    
-    logging.info(log)
 
     shutil.rmtree(ftg_dir, onerror=remove_readonly)
+    log += f'{now}: deleted directory: {ftg_dir}\n'
+
+    logging.info(log)
 
 
