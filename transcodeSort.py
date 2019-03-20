@@ -28,6 +28,7 @@ server_dir = os.path.abspath("Z:\\monster")
 trans_dir = os.path.join(server_dir, "ame")
 ftg_source = os.path.join(trans_dir, "Origen")
 trans_out = os.path.join(trans_dir, "Salida")
+edit_dir = os.path.abspath("E:\\Dropbox (BigBangBoxSL)\\PROYECTOS\\My preschool monster serie\\PRODUCCION\\Editorial\\FTG")
 
 
 def remove_readonly(func, path, excinfo):
@@ -70,6 +71,12 @@ for contents in os.listdir(trans_out):
     shutil.move(current_dir, new_dir)
 
     log += f'{now}: moved {contents} to: {epi_path}\n'
+    
+    edit_shot_dir = os.path.join(edit_dir, f'___S{season}\\S{season}E{episode}{title}\\Renders')
+    if not os.path.exists(epi_path):
+        os.makedirs(epi_path)
+    shutil.copy2(new_dir, edit_shot_dir)
+    log += f'{now}: copied {contents} to: {edit_shot_dir}\n'
 
     logging.info(log)
 
@@ -104,7 +111,6 @@ for folder in os.listdir(ftg_source):
             title = ""
         else:
             title = f'_{title}'
-
 
         shot_name = f'S{season}E{episode}_SQ{sequence}_SH{shot}_V{version}'
         shot_path = os.path.join(server_dir, f'S{season}\\S{season}E{episode}{title}\\shots\\exr\\{shot_name}')        

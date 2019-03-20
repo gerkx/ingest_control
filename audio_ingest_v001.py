@@ -1,12 +1,24 @@
-import re, shutil, os, subprocess, time
+import re, shutil, os, subprocess, time, logging
+from datetime import datetime
+from util import log, pad
 from unidecode import unidecode
 from openpyxl import load_workbook
 
-main_dir = os.path.abspath("E:\\test\\Audio_In")
+now = datetime.now()
+year = pad.two(now.year)
+month = pad.two(now.month)
+day = pad.two(now.day)
+hour = pad.two(now.hour)
+minute = pad.two(now.minute)
+second = pad.two(now.second)
+LOG_FILENAME = f'Logs\\audio_{year}{month}{day}{hour}{minute}{second}.log'
+logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
+
+main_dir = os.path.abspath("E:\\Dropbox (BigBangBoxSL)\\PROYECTOS\\My preschool monster serie\\PRODUCCION\\Editorial\\Audio")
 watch_dir = os.path.join(main_dir, "_audio_in")
-gen_dir = os.path.abspath("E:\\Dropbox (BigBangBoxSL)\\PROYECTOS\\My preschool monster serie\\PRODUCCION\\Editorial\\Audio\\generico\\ingles\\")
+gen_dir = os.path.join(main_dir, "generico\\ingles")
 walla_dir = os.path.join(gen_dir, "wallas")
-trama_dir = os.path.join(watch_dir, 'S01')
+trama_dir = os.path.join(main_dir, 'S01')
 ninos_dir = os.path.join(gen_dir, "ninos")
 season = 1
 
@@ -14,6 +26,7 @@ spread_sheet = os.path.abspath("E:\\Dropbox (BigBangBoxSL)\\PROYECTOS\\My presch
 wb = load_workbook(filename = spread_sheet)
 sheet = wb["EPISODIOS"]
 col = "I"
+
 
 def pad_zero(num, pad):
     num = str(num)
@@ -32,32 +45,65 @@ def pad_zero(num, pad):
 #     return prev_ver + 1
 
 for contents in os.listdir(watch_dir):
-    curr_file = os.path.join(watch_dir, contents)
+    log = '\n'
+    file_name = contents
+    curr_file = os.path.join(watch_dir, file_name)
     if not os.path.isdir(curr_file):
 
-        trama = re.search(r'cap\d{2}', contents, re.IGNORECASE)
-        walla = re.search(r'walla', contents, re.IGNORECASE)
-        nino = re.search(r'ninos', contents, re.IGNORECASE)
+        trama = re.search(r'cap\d{1}', file_name, re.IGNORECASE)
+        walla = re.search(r'walla', file_name, re.IGNORECASE)
+        nino = re.search(r'ninos', file_name, re.IGNORECASE)
 
         if walla is not None:
-            if os.path.isfile(os.path.join(walla_dir, contents)):
+            if os.path.isfile(os.path.join(walla_dir, file_name)):
                 continue
-            shutil.move(curr_file, os.path.join(walla_dir, "ingles"))
+            shutil.move(curr_file, walla_dir)
+            log += f'{log.now()}: moved {file_name} to: {walla_dir}\n'
             
 
         if trama is not None:
-            epiNum = re.search(r'\d{2}', trama.group(0), re.IGNORECASE)
-            epi = trama.group(0)[epiNum.start(0):epiNum.end(0)]
+            pad_two = re.search(r'\d{2}', file_name, re.IGNORECASE)
+            
+            pad_one = re.search(r'\d{1}', file_name, re.IGNORECASE)
+            
+            if pad_two is None and pad_one is not None:
+                orig_file = os.path.join(watch_dir, file_name)
+                # print(file_name)
+                epi = pad_zero(file_name[pad_one.start(0):pad_one.end(0)],2)
+                cap = f'CAP{epi}'
+                # print(cap)
+                name_start = file_name[:trama.start(0)]
+                name_end = file_name[trama.end(0):]
+                file_name = f'{name_start}{cap}{name_end}'
+                
+
+                curr_file = os.path.join(watch_dir, file_name)
+                os.rename(orig_file, curr_file)
+            else:
+                epi = file_name[pad_two.start(0):pad_two.end(0)]
+            # print(file_name, epi)
             title_base = unidecode(sheet[f'{col}{str(int(epi)+2)}'].value).lower().split(' ', 1)[0]
             title = re.sub(r'[^\w\s]', '', title_base)
-            
             file_path = os.path.join(trama_dir, f'epi{pad_zero(epi, 3)}_{title}\\voz\\ingles')
             if not os.path.exists(file_path):
                 os.makedirs(file_path)
 
+            
+            if os.path.isfile(os.path.join(file_path, file_name)):
+                orig_file = os.path.join(watch_dir, file_name)
+                base_name = file_name.split(".")
+                new_ver = year[2:]+month+day
+                file_name = f'{base_name[0]} {new_ver}.{base_name[1]}'
+                
+                curr_file = os.path.join(watch_dir, file_name)
+                os.rename(orig_file, curr_file)
+
             shutil.move(curr_file, file_path)
+            log += f'{now}: moved {contents} to: {file_path}\n'
 
         # if ninos is not None and trama is None:
+        
+        logging.info(log)
 
 
         
